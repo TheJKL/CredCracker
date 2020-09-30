@@ -1,7 +1,7 @@
 #!/bin/python3
 import sys
 import requests
-import concurrent.futures
+from multiprocessing import Pool
 
 testString = "Invalid username"
 url = sys.argv[1]
@@ -10,10 +10,8 @@ words = [word.strip() for word in wordFile.readlines()]
 cookies = dict(session = sys.argv[2])
 
 def main():
-    pool = concurrent.futures.ThreadPoolExecutor(max_workers=4)
-    for word in words:
-        x = pool.submit(testWord,word)
-    pool.shutdown(wait=True)
+    with Pool(processes = 32) as pool:
+        pool.map(testWord,words)
 
 def testWord(word):
     r = requests.post(url,cookies = cookies, data = { "username":word, "password":"test" })
